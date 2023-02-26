@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/ages-of-conflict-gen/static/css/main.c4d76646.css",
-    "main.js": "/ages-of-conflict-gen/static/js/main.d776e205.js",
-    "index.html": "/ages-of-conflict-gen/index.html",
-    "main.c4d76646.css.map": "/ages-of-conflict-gen/static/css/main.c4d76646.css.map",
-    "main.d776e205.js.map": "/ages-of-conflict-gen/static/js/main.d776e205.js.map"
+    "main.css": "/map-gen/static/css/main.c4d76646.css",
+    "main.js": "/map-gen/static/js/main.d776e205.js",
+    "index.html": "/map-gen/index.html",
+    "main.c4d76646.css.map": "/map-gen/static/css/main.c4d76646.css.map",
+    "main.d776e205.js.map": "/map-gen/static/js/main.d776e205.js.map"
   },
   "entrypoints": [
     "static/css/main.c4d76646.css",
