@@ -4,15 +4,16 @@ import generateMap from "./noiseGen/noiseGen";
 
 function App() {
   const [seed, setSeed] = useState(Math.round(Math.random() * 100000000000000));
-  const [width, setWidth] = useState(380);
-  const [height, setHeight] = useState(200);
+  const [width, setWidth] = useState(350);
+  const [height, setHeight] = useState(300);
   const [octaves, setOctaves] = useState(8);
-  const [persistence, setPersistence] = useState(0.5);
+  const [persistence, setPersistence] = useState(0.6);
   const [lacunarity, setLacunarity] = useState(2);
   const [amplitude, setAmplitude] = useState(1);
   const [frequency, setFrequency] = useState(0.003);
   const [waterThreshold, setWaterThreshold] = useState(0.4);
   const [worldName, setWorldName] = useState(null);
+  const [coloredMap, setColoredMap] = useState(false);
 
   const canvasRef = useRef(null);
   async function updateOptions(key, value) {
@@ -67,14 +68,23 @@ function App() {
 
     if (noiseValue < waterThresholdNew) {
       ctx.fillStyle = "#FFFFFF";
+      if (coloredMap) {
+        ctx.fillStyle = "#457b9d";
+      }
     }
     // Crossing level
     else if (noiseValue < waterThresholdNew + 0.1) {
       ctx.fillStyle = "#CCCCCC";
+      if (coloredMap) {
+        ctx.fillStyle = "#ade8f4";
+      }
     }
     // Land level
     else if (noiseValue < waterThresholdNew + 0.5) {
       ctx.fillStyle = "#000000";
+      if (coloredMap) {
+        ctx.fillStyle = "#31a354";
+      }
     }
     // Hill level
     else if (noiseValue < waterThresholdNew + 0.6) {
@@ -83,6 +93,9 @@ function App() {
     // Mountain level
     else if (noiseValue < waterThresholdNew + 0.7) {
       ctx.fillStyle = "#333333";
+      if (coloredMap) {
+        ctx.fillStyle = "#000000";
+      }
     }
   }
 
@@ -120,11 +133,11 @@ function App() {
       draw();
     }, 300);
     return () => clearTimeout(delayDebounceFn);
-  }, [seed, width, height, octaves, persistence, lacunarity, amplitude, frequency, waterThreshold]);
+  }, [seed, width, height, octaves, persistence, lacunarity, amplitude, frequency, waterThreshold, coloredMap]);
 
   return (
-    <div className="h-screen w-screen">
-      <div className="bg-slate-800 w-full h-full text-white placeholder-gray">
+    <div className="h-full w-full p-4s bg-slate-800">
+      <div className="w-full h-full text-white placeholder-gray">
         <div className="flex flex-col items-center justify-center h-screen">
           <div className="w-full flex justify-center items-center flex-col">
             <div className="flex">
@@ -135,6 +148,13 @@ function App() {
                 ref={canvasRef}
                 style={{ border: "1px solid black" }}
               />
+              {/* Checkbox to toggle color */}
+            </div>
+            <div className="flex flex-col justify-center items-center">
+              <label className="flex items-center">
+                <input type="checkbox" className="form-checkbox" onClick={() => setColoredMap(!coloredMap)} />
+                <span className="ml-2">Colored Map</span>
+              </label>
             </div>
             <div className="flex">
               <div className="m-2">
@@ -208,11 +228,11 @@ function App() {
                 onChange={(e) => updateOptions("persistence", e.target.value)}
                 className="text-black block slider w-full"
                 id="slider2"
-                defaultValue="0.5"
+                defaultValue="0.6"
                 type="range"
                 min="0"
                 max="1"
-                step="0.0001"
+                step="0.01"
               />
             </div>
             <div className="w-1/4 p-4">

@@ -2,7 +2,7 @@
   "name": "map-gen",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://NicholasLN.github.io/ages-of-conflict-gen",
+  "homepage": "https://NicholasLN.github.io/map-gen",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",

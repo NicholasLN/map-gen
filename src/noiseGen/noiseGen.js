@@ -240,6 +240,10 @@ function generateMap(seed, size, octaves, persistence, lacunarity, amplitude, fr
     }
     frequency *= lacunarity;
   }
+  // Generate a map for river generation and erosion; overwrites the octaveMaps
+  // This should result in a noise map where there are lines of high and low values that will be used to generate rivers
+  // This should also result in a noise map where there are lines of high and low values that will be used to erode the map
+  const riverMap = new Array(width);
 
   // We will now combine the maps
   for (let x = 0; x < width; x++) {
@@ -253,10 +257,31 @@ function generateMap(seed, size, octaves, persistence, lacunarity, amplitude, fr
         amp *= persistence;
         frequency *= lacunarity;
       }
-
+      // River generation
+      for (let i = 0; i < octaves; i++) {
+        total += riverMap[x][y] * amp;
+        amp *= persistence;
+        frequency *= lacunarity;
+      }
       map[x][y] = total;
     }
   }
+
+  // for (let x = 0; x < width; x++) {
+  //   for (let y = 0; y < height; y++) {
+  //     let amp = amplitude;
+  //     let frequency = 1;
+  //     let total = 0;
+
+  //     for (let i = 0; i < octaves; i++) {
+  //       total += octaveMaps[i][x][y] * amp;
+  //       amp *= persistence;
+  //       frequency *= lacunarity;
+  //     }
+
+  //     map[x][y] = total;
+  //   }
+  // }
 
   // We will now normalize the map
   let min = Number.MAX_VALUE;
