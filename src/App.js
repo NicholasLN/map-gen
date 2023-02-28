@@ -101,7 +101,9 @@ function App() {
 
   function download() {
     const canvas = canvasRef.current;
-    const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+    const image = canvas
+      .toDataURL("image/png")
+      .replace("image/png", "image/octet-stream");
     const link = document.createElement("a");
     if (!worldName) {
       link.download = `noise_map_${seed}_${width}x${height}.png`;
@@ -118,7 +120,15 @@ function App() {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
 
-      var map = generateMap(seed, [width, height], octaves, persistence, lacunarity, amplitude, frequency);
+      var map = generateMap(
+        seed,
+        [width, height],
+        octaves,
+        persistence,
+        lacunarity,
+        amplitude,
+        frequency
+      );
       for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
           const noise = map[x][y];
@@ -133,7 +143,18 @@ function App() {
       draw();
     }, 300);
     return () => clearTimeout(delayDebounceFn);
-  }, [seed, width, height, octaves, persistence, lacunarity, amplitude, frequency, waterThreshold, coloredMap]);
+  }, [
+    seed,
+    width,
+    height,
+    octaves,
+    persistence,
+    lacunarity,
+    amplitude,
+    frequency,
+    waterThreshold,
+    coloredMap,
+  ]);
 
   return (
     <div className="h-full w-full p-4s bg-slate-800">
@@ -152,7 +173,11 @@ function App() {
             </div>
             <div className="flex flex-col justify-center items-center">
               <label className="flex items-center">
-                <input type="checkbox" className="form-checkbox" onClick={() => setColoredMap(!coloredMap)} />
+                <input
+                  type="checkbox"
+                  className="form-checkbox"
+                  onClick={() => setColoredMap(!coloredMap)}
+                />
                 <span className="ml-2">Colored Map</span>
               </label>
             </div>
@@ -162,7 +187,12 @@ function App() {
                   <label className="font-medium mb-2" htmlFor="seed">
                     Seed
                   </label>
-                  <button className="block font-medium mb-2 ml-1 text-sm bg-slate-700 px-2 rounded-lg" onClick={() => setSeed(Math.round(Math.random() * 100000000000000))}>
+                  <button
+                    className="block font-medium mb-2 ml-1 text-sm bg-slate-700 px-2 rounded-lg"
+                    onClick={() =>
+                      setSeed(Math.round(Math.random() * 100000000000000))
+                    }
+                  >
                     Reroll
                   </button>
                 </div>
@@ -183,7 +213,8 @@ function App() {
                   onChange={(e) => updateOptions("height", e.target.value)}
                   className="text-black appearance-none border border-gray-300 rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
                   id="height"
-                  type="text"
+                  type="number"
+                  max={707}
                   placeholder="Enter height"
                   value={height}
                 />
@@ -196,7 +227,8 @@ function App() {
                   onChange={(e) => updateOptions("width", e.target.value)}
                   className="text-black appearance-none border border-gray-300 rounded py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
                   id="width"
-                  type="text"
+                  type="number"
+                  max={707}
                   placeholder="Enter width"
                   value={width}
                 />
@@ -209,18 +241,33 @@ function App() {
                 <label className="block font-medium mb-2" htmlFor="slider1">
                   Octaves
                 </label>
-                <label className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg" htmlFor="slider1">
+                <label
+                  className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg"
+                  htmlFor="slider1"
+                >
                   {octaves}
                 </label>
               </div>
-              <input onChange={(e) => updateOptions("octaves", e.target.value)} className="text-black block slider w-full" id="slider1" defaultValue="8" type="range" min="0" max="20" step="1" />
+              <input
+                onChange={(e) => updateOptions("octaves", e.target.value)}
+                className="text-black block slider w-full"
+                id="slider1"
+                defaultValue="8"
+                type="range"
+                min="0"
+                max="20"
+                step="1"
+              />
             </div>
             <div className="w-1/4 p-4">
               <div className="flex flex-row">
                 <label className="block font-medium mb-2" htmlFor="slider2">
                   Persistence
                 </label>
-                <label className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg" htmlFor="slider2">
+                <label
+                  className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg"
+                  htmlFor="slider2"
+                >
                   {persistence}
                 </label>
               </div>
@@ -240,18 +287,33 @@ function App() {
                 <label className="block font-medium mb-2" htmlFor="slider3">
                   Lacunarity
                 </label>
-                <label className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg" htmlFor="slider3">
+                <label
+                  className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg"
+                  htmlFor="slider3"
+                >
                   {lacunarity}
                 </label>
               </div>
-              <input onChange={(e) => updateOptions("lacunarity", e.target.value)} className="text-black block slider w-full" defaultValue="2" id="slider4" type="range" min="0" max="4" step="0.01" />
+              <input
+                onChange={(e) => updateOptions("lacunarity", e.target.value)}
+                className="text-black block slider w-full"
+                defaultValue="2"
+                id="slider4"
+                type="range"
+                min="0"
+                max="4"
+                step="0.01"
+              />
             </div>
             <div className="w-1/4 p-4">
               <div className="flex flex-row">
                 <label className="block font-medium mb-2" htmlFor="slider4">
                   Frequency
                 </label>
-                <label className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg" htmlFor="slider4">
+                <label
+                  className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg"
+                  htmlFor="slider4"
+                >
                   {frequency}
                 </label>
               </div>
@@ -273,12 +335,17 @@ function App() {
                 <label className="block font-medium mb-2" htmlFor="slider5">
                   Water Threshold
                 </label>
-                <label className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg" htmlFor="slider5">
+                <label
+                  className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg"
+                  htmlFor="slider5"
+                >
                   {waterThreshold}
                 </label>
               </div>
               <input
-                onChange={(e) => updateOptions("waterThreshold", e.target.value)}
+                onChange={(e) =>
+                  updateOptions("waterThreshold", e.target.value)
+                }
                 className="text-black block slider w-full"
                 id="slider5"
                 defaultValue="0.4"
@@ -299,7 +366,10 @@ function App() {
                 type="text"
                 placeholder="Enter world name"
               />
-              <button onClick={download} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              <button
+                onClick={download}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
                 Download
               </button>
             </div>
