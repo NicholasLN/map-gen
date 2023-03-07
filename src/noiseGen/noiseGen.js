@@ -99,9 +99,6 @@ function createNoise() {
   var F2 = 0.5 * (Math.sqrt(3) - 1);
   var G2 = (3 - Math.sqrt(3)) / 6;
 
-  var F3 = 1 / 3;
-  var G3 = 1 / 6;
-
   module.simplex2 = function (xin, yin) {
     var n0, n1, n2; // Noise contributions from the three corners
     // Skew the input space to determine which simplex cell we're in
@@ -206,7 +203,7 @@ function seedTextToNumber(seed) {
   // cast to string
   var str = seed + "";
   var hash = 0;
-  if (str.length == 0) return hash;
+  if (str.length === 0) return hash;
   for (var i = 0; i < str.length; i++) {
     var char = str.charCodeAt(i);
     hash = (hash << 5) - hash + char;
@@ -250,9 +247,9 @@ function generateMap(
   for (let i = 0; i < octaves; i++) {
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
-        if (type == "simplex") {
+        if (type === "simplex") {
           octaveMaps[i][x][y] = noise.simplex2(x * frequency, y * frequency);
-        } else if (type == "perlin") {
+        } else if (type === "perlin") {
           octaveMaps[i][x][y] = noise.perlin2(x * frequency, y * frequency);
         }
       }

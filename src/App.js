@@ -11,11 +11,18 @@ function App() {
   const [lacunarity, setLacunarity] = useState(2);
   const [amplitude, setAmplitude] = useState(1);
   const [frequency, setFrequency] = useState(0.003);
-  const [waterThreshold, setWaterThreshold] = useState(0.4);
+  const [type, setType] = useState("simplex");
+
   const [worldName, setWorldName] = useState(null);
   const [coloredMap, setColoredMap] = useState(false);
 
+  const [useRivers, setUseRivers] = useState(false);
+  const [waterThreshold, setWaterThreshold] = useState(0.4);
+  const [riverWidth, setRiverWidth] = useState(0.03);
+  const [useBiomes, setUseBiomes] = useState(false);
+
   const canvasRef = useRef(null);
+
   async function updateOptions(key, value) {
     //await delay(1000);
     switch (key) {
@@ -23,10 +30,18 @@ function App() {
         setSeed(value);
         break;
       case "width":
-        setWidth(value);
+        if (width > 700) {
+          setWidth(700);
+        } else {
+          setWidth(value);
+        }
         break;
       case "height":
-        setHeight(value);
+        if (height > 700) {
+          setHeight(700);
+        } else {
+          setHeight(value);
+        }
         break;
       case "octaves":
         setOctaves(value);
@@ -44,58 +59,13 @@ function App() {
         setFrequency(value);
         break;
       case "waterThreshold":
-        setWaterThreshold(value);
+        setWaterThreshold(parseFloat(value));
         break;
+      case "noiseType":
+        setType(value);
+        break;
+
       default:
-    }
-  }
-
-  function color(noiseValue, ctx) {
-    //console.log(waterThreshold);
-    // Water: #FFFFFF
-    // Crossing: #CCCCCC
-    // Land: #000000
-    // Hill: #999999
-    // Mountain: #333333
-
-    // Make sure the noise value is between 0 and 1
-    noiseValue = Math.abs(noiseValue);
-    // We want to make it so that water level can be increased or decreased
-    // This should also affect the crossing level
-    // Water level
-
-    let waterThresholdNew = new Number(waterThreshold);
-
-    if (noiseValue < waterThresholdNew) {
-      ctx.fillStyle = "#FFFFFF";
-      if (coloredMap) {
-        ctx.fillStyle = "#457b9d";
-      }
-    }
-    // Crossing level
-    else if (noiseValue < waterThresholdNew + 0.1) {
-      ctx.fillStyle = "#CCCCCC";
-      if (coloredMap) {
-        ctx.fillStyle = "#ade8f4";
-      }
-    }
-    // Land level
-    else if (noiseValue < waterThresholdNew + 0.5) {
-      ctx.fillStyle = "#000000";
-      if (coloredMap) {
-        ctx.fillStyle = "#31a354";
-      }
-    }
-    // Hill level
-    else if (noiseValue < waterThresholdNew + 0.6) {
-      ctx.fillStyle = "#999999";
-    }
-    // Mountain level
-    else if (noiseValue < waterThresholdNew + 0.7) {
-      ctx.fillStyle = "#333333";
-      if (coloredMap) {
-        ctx.fillStyle = "#000000";
-      }
     }
   }
 
@@ -116,7 +86,56 @@ function App() {
 
   useEffect(() => {
     console.log("Map updated");
-    function draw() {
+    function color(noiseValue, ctx, map, x, y) {
+      //console.log(waterThreshold);
+      // Water: #FFFFFF
+      // Crossing: #CCCCCC
+      // Land: #000000
+      // Hill: #999999
+      // Mountain: #333333
+
+      noiseValue = Math.abs(noiseValue);
+      if (noiseValue < waterThreshold) {
+        ctx.fillStyle = "#FFFFFF";
+        if (coloredMap) {
+          ctx.fillStyle = "#457b9d";
+        }
+      }
+      // Crossing level
+      else if (noiseValue < waterThreshold + 0.13) {
+        ctx.fillStyle = "#CCCCCC";
+        if (coloredMap) {
+          ctx.fillStyle = "#ade8f4";
+        }
+      } else if (noiseValue === 45.0000001) {
+        ctx.fillStyle = "#666666";
+        if (coloredMap) {
+          ctx.fillStyle = "yellow";
+        }
+      }
+      // Land level
+      else if (noiseValue < waterThreshold + 0.45) {
+        ctx.fillStyle = "#000000";
+        if (coloredMap) {
+          ctx.fillStyle = "#31a354";
+        }
+      }
+      // Hill level
+      else if (noiseValue < waterThreshold + 0.48) {
+        ctx.fillStyle = "#333333";
+        if (coloredMap) {
+          ctx.fillStyle = "#838372";
+        }
+      }
+      // Mountain level
+      else {
+        ctx.fillStyle = "#999999";
+        if (coloredMap) {
+          ctx.fillStyle = "#000000";
+        }
+      }
+    }
+    async function draw() {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
 
@@ -127,15 +146,85 @@ function App() {
         persistence,
         lacunarity,
         amplitude,
-        frequency
+        frequency,
+        type
       );
+
+      // Now generate another map for rivers by amplifying the noise values
+      // (it should be a bunch of small values that are curving around the map and intersecting) and then use that to generate rivers.
+
+      if (useRivers) {
+        var riverMap = generateMap(
+          seed + "_river_map",
+          [width, height],
+          octaves,
+          persistence,
+          lacunarity,
+          amplitude,
+          frequency,
+          type
+        );
+        // Do a loop over riverMap and if the value is above a certain threshold, then draw a river.
+        // Rivers should be a different color than the land.
+        await Promise.all(
+          riverMap.map(async (row, x) => {
+            await Promise.all(
+              row.map(async (noise, y) => {
+                if (
+                  noise > waterThreshold &&
+                  noise < waterThreshold + parseFloat(riverWidth)
+                ) {
+                  if (map[x][y] >= waterThreshold + 0.13 && map[x][y] < 0.8) {
+                    // 'sink' the land a bit for erosion
+                    map[x][y] = noise;
+                  }
+                }
+              })
+            );
+          })
+        );
+      }
+
+      if (useBiomes) {
+        var biomeMap = generateMap(
+          seed + "_river_map",
+          [width, height],
+          octaves,
+          persistence + 0.05,
+          lacunarity * 1.765,
+          amplitude,
+          frequency * 0.35,
+          type
+        );
+
+        // turn this into an promise.all
+        await Promise.all(
+          biomeMap.map(async (row, x) => {
+            await Promise.all(
+              row.map(async (noise, y) => {
+                if (
+                  noise > waterThreshold + 0.25 &&
+                  noise < waterThreshold + 0.75
+                ) {
+                  if (map[x][y] >= waterThreshold + 0.25 && map[x][y] < 0.75) {
+                    // 'sink' the land a bit for erosion
+                    map[x][y] = 45.0000001;
+                  }
+                }
+              })
+            );
+          })
+        );
+      }
+
       for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
           const noise = map[x][y];
-          color(noise, ctx, 0.2);
+          color(noise, ctx, 0.2, map, x, y);
           ctx.fillRect(x, y, 1, 1);
         }
       }
+
       canvas.style.width = width + "px";
       canvas.style.height = height + "px";
     }
@@ -154,6 +243,10 @@ function App() {
     frequency,
     waterThreshold,
     coloredMap,
+    useRivers,
+    riverWidth,
+    useBiomes,
+    type,
   ]);
 
   return (
@@ -171,14 +264,41 @@ function App() {
               />
               {/* Checkbox to toggle color */}
             </div>
-            <div className="flex flex-col justify-center items-center">
-              <label className="flex items-center">
+            <div className="flex flex-row justify-center items-center">
+              <label className="flex items-center px-1">
                 <input
                   type="checkbox"
                   className="form-checkbox"
                   onClick={() => setColoredMap(!coloredMap)}
                 />
                 <span className="ml-2">Colored Map</span>
+              </label>
+              <label className="flex items-center px-1">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  onClick={() => setUseRivers(!useRivers)}
+                />
+                <span className="ml-2">Generate Rivers</span>
+              </label>
+              <label className="flex items-center px-1">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  onClick={() => setUseBiomes(!useBiomes)}
+                />
+                <span className="ml-2">Generate Biomes</span>
+              </label>
+              <label className="flex items-center px-1">
+                <span className="ml-2">Noise Type</span>
+                <select
+                  defaultValue={type}
+                  className="ml-2 p-2 text-white rounded-md bg-slate-700"
+                  onChange={(e) => updateOptions("noiseType", e.target.value)}
+                >
+                  <option value="simplex">Simplex</option>
+                  <option value="perlin">Perlin</option>
+                </select>
               </label>
             </div>
             <div className="flex">
@@ -351,6 +471,29 @@ function App() {
                 defaultValue="0.4"
                 type="range"
                 min="0.1"
+                max="1"
+                step="0.01"
+              />
+            </div>
+            <div className="w-full p-4">
+              <div className="flex flex-row">
+                <label className="block font-medium mb-2" htmlFor="slider5">
+                  River Width
+                </label>
+                <label
+                  className="block font-medium mb-2 ml-1 text-sm bg-slate-700 p-1 rounded-lg"
+                  htmlFor="slider5"
+                >
+                  {riverWidth}
+                </label>
+              </div>
+              <input
+                onChange={(e) => setRiverWidth(e.target.value)}
+                className="text-black block slider w-full"
+                id="slider5"
+                defaultValue="0.03"
+                type="range"
+                min="0"
                 max="1"
                 step="0.01"
               />
