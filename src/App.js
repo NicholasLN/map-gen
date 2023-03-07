@@ -61,6 +61,15 @@ function App() {
       case "waterThreshold":
         setWaterThreshold(parseFloat(value));
         break;
+      case "useRivers":
+        setUseRivers(value);
+        break;
+      case "useBiomes":
+        setUseBiomes(value);
+        break;
+      case "riverWidth":
+        setRiverWidth(parseFloat(value));
+        break;
       case "noiseType":
         setType(value);
         break;
@@ -220,7 +229,7 @@ function App() {
       for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
           const noise = map[x][y];
-          color(noise, ctx, 0.2, map, x, y);
+          color(noise, ctx, map, x, y);
           ctx.fillRect(x, y, 1, 1);
         }
       }
@@ -251,8 +260,8 @@ function App() {
 
   return (
     <div className="h-full w-full p-4s bg-slate-800">
-      <div className="w-full h-full text-white placeholder-gray">
-        <div className="flex flex-col items-center justify-center h-screen">
+      <div className="h-full w-1/2 text-white placeholder-gray flex flex-row items-center self-center justify-center align-middle m-auto pt-8">
+        <div className="flex flex-col w-5/6 h-full items-center self-center justify-center align-middle">
           <div className="w-full flex justify-center items-center flex-col">
             <div className="flex">
               <canvas
@@ -514,6 +523,35 @@ function App() {
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
               >
                 Download
+              </button>
+            </div>
+          </div>
+        </div>
+        {/* Template setting buttons */}
+        <div className="max-w-2xl mt-4 flex self-start text-center w-1/6">
+          {/* A header that says "Templates" */}
+          {/* Don't add onClick listeners yet */}
+          <div className="p-4 m-auto flex flex-col justify-center">
+            <h1 className="text-2xl font-bold">Templates</h1>
+            <div className="flex flex-row p-3">
+              {/* A button that says "Continental" */}
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => {
+                  updateOptions("height", 512);
+                  updateOptions("width", 512);
+                  updateOptions("octaves", 16);
+                  updateOptions("persistence", 0.63);
+                  updateOptions("lacunarity", 2);
+                  updateOptions("frequency", 0.001);
+                  updateOptions("waterThreshold", 0.4);
+                  updateOptions("riverWidth", 0.03);
+                  updateOptions("useBiomes", true);
+                  updateOptions("useRivers", true);
+                  updateOptions("noiseType", "perlin");
+                }}
+              >
+                Continental
               </button>
             </div>
           </div>
